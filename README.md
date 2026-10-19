@@ -41,9 +41,12 @@ wget -qO- https://raw.githubusercontent.com/khomenkov/openwrt-autoupgrade/main/i
 ## Ручное использование
 
 ```sh
-/root/upgrade.sh >/dev/null 2>&1 &                    # запустить в фоне
-logread | grep autoupgrade | tail -n 40               # посмотреть лог
+/root/upgrade.sh        # обновить пакеты прямо в консоли
+/root/upgrade.sh bg     # запустить в фоне и сразу вернуться
+/root/upgrade.sh log    # последние 40 строк лога обновлений
 ```
+
+Именно эти `bg` и `log` вызывают кнопки в LuCI: там команда выполняется без оболочки, поэтому `&`, `|` и скобки в ней не работают.
 
 Скрипт пропускает запуск, если в `/overlay` меньше ~5 МБ свободного места, и не запускается дважды одновременно (замок `/tmp/autoupgrade.lock`).
 

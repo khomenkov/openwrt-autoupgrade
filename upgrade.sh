@@ -1,5 +1,22 @@
 #!/bin/sh
 # Автообновление пакетов для OpenWrt 25.12+ (apk)
+#
+# Использование:
+#   upgrade.sh        обновить пакеты прямо сейчас (так его вызывает cron)
+#   upgrade.sh bg     запустить обновление в фоне и сразу вернуть управление (для кнопки в LuCI)
+#   upgrade.sh log    показать последние строки лога обновлений
+
+case "$1" in
+    bg)
+        ( "$0" </dev/null >/dev/null 2>&1 & )
+        echo "Запущено в фоне, смотрите лог"
+        exit 0
+        ;;
+    log)
+        logread | grep autoupgrade | tail -n 40
+        exit 0
+        ;;
+esac
 
 LOCK=/tmp/autoupgrade.lock
 [ -e "$LOCK" ] && exit 0

@@ -76,8 +76,10 @@ if [ -z "$NO_LUCI" ]; then
             fi
         fi
 
-        add_luci_cmd "Обновить пакеты" "($DEST >/dev/null 2>&1 &); echo \"Запущено в фоне, смотрите лог\""
-        add_luci_cmd "Лог обновления" "logread | grep autoupgrade | tail -n 40"
+        # LuCI разбирает команду по словам и запускает без оболочки: &, |, >, ( ) не работают,
+        # поэтому в команде только путь к скрипту и одно слово-режим
+        add_luci_cmd "Обновить пакеты" "$DEST bg"
+        add_luci_cmd "Лог обновления" "$DEST log"
         uci commit luci
         say "команды добавлены в LuCI (Система -> Пользовательские команды)"
     else
