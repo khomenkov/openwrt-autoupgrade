@@ -26,6 +26,13 @@
 wget -qO- https://raw.githubusercontent.com/khomenkov/openwrt-autoupgrade/main/install.sh | sh
 ```
 
+Если команды `wget` на роутере нет (бывает в нестандартных сборках), подойдёт любой из двух вариантов:
+
+```
+uclient-fetch -qO- https://raw.githubusercontent.com/khomenkov/openwrt-autoupgrade/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/khomenkov/openwrt-autoupgrade/main/install.sh | sh
+```
+
 Установщик кладёт скрипт в `/root/upgrade.sh`, создаёт файл настроек `/etc/config/autoupgrade`, добавляет кнопки в LuCI и задачу в cron.
 
 Повторный запуск той же команды обновляет скрипт. Дублей в LuCI и cron не появляется, существующие настройки и расписание сохраняются.
@@ -161,7 +168,7 @@ wget -qO- https://raw.githubusercontent.com/khomenkov/openwrt-autoupgrade/main/u
 ## Требования
 
 - OpenWrt 25.12+ с `apk`
-- HTTPS в `wget` (в стандартной сборке есть через `uclient-fetch` и `ca-bundle`)
+- загрузчик с HTTPS: `wget`, `uclient-fetch` или `curl` (в стандартной сборке есть через `uclient-fetch` и `ca-bundle`)
 - для кнопок в LuCI нужен `luci-app-commands` (установщик ставит его сам, если LuCI есть)
 
 ## Разработка

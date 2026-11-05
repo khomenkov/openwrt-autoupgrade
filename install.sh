@@ -16,6 +16,7 @@
 #
 # Запуск на роутере:
 #   wget -qO- https://raw.githubusercontent.com/khomenkov/openwrt-autoupgrade/main/install.sh | sh
+# Если команды wget нет, то же самое через uclient-fetch -qO- или curl -fsSL.
 #
 # Переменные окружения (все необязательные):
 #   REPO           владелец/репозиторий на GitHub (по умолчанию khomenkov/openwrt-autoupgrade)
@@ -44,8 +45,15 @@ say() { echo "[install] $*"; }
 warn() { echo "[install] ВНИМАНИЕ: $*" >&2; }
 die() { echo "[install] ОШИБКА: $*" >&2; exit 1; }
 
-fetch() { # fetch URL FILE
-	wget -q -O "$2" "$1" 2>/dev/null || uclient-fetch -q -O "$2" "$1" 2>/dev/null
+fetch() { # fetch URL FILE: пробуем wget, uclient-fetch и curl, что найдётся и сработает
+	for _t in wget uclient-fetch curl; do
+		command -v "$_t" >/dev/null 2>&1 || continue
+		case "$_t" in
+		curl) curl -fsSL -o "$2" "$1" 2>/dev/null ;;
+		*) "$_t" -q -O "$2" "$1" 2>/dev/null ;;
+		esac && return 0
+	done
+	return 1
 }
 
 command -v apk >/dev/null 2>&1 || die "apk не найден: нужен OpenWrt 25.12 или новее"
@@ -56,7 +64,7 @@ TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
 
 say "скачиваю $BASE/upgrade.sh"
-fetch "$BASE/upgrade.sh" "$TMP" || die "не удалось скачать upgrade.sh (проверьте REPO/BRANCH и доступ к raw.githubusercontent.com)"
+fetch "$BASE/upgrade.sh" "$TMP" || die "не удалось скачать upgrade.sh (проверьте REPO/BRANCH, доступ к raw.githubusercontent.com и наличие wget, uclient-fetch или curl)"
 head -n 1 "$TMP" | grep -q '^#!/bin/sh' || die "скачанный файл не похож на shell-скрипт"
 sh -n "$TMP" || die "в скачанном скрипте синтаксическая ошибка, возможно файл загрузился не полностью"
 

@@ -79,8 +79,10 @@ http_post() { # http_post URL ТЕЛО [CONTENT-TYPE]
 	_ct="${3:-text/plain}"
 	if command -v curl >/dev/null 2>&1; then
 		curl -fsS -m 20 -H "Content-Type: $_ct" --data-binary "$2" "$1" >/dev/null
-	else
+	elif command -v wget >/dev/null 2>&1; then
 		wget -q -T 20 -O /dev/null --header="Content-Type: $_ct" --post-data="$2" "$1"
+	else
+		uclient-fetch -q -T 20 -O /dev/null --header="Content-Type: $_ct" --post-data="$2" "$1"
 	fi
 }
 
